@@ -5,11 +5,15 @@ import java.util.stream.Collectors;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.codewithspardha.blog.exceptions.*;
+import com.codewithspardha.blog.config.AppConstants;
+import com.codewithspardha.blog.entities.Role;
 import com.codewithspardha.blog.entities.User;
 import com.codewithspardha.blog.payloads.UserDto;
+import com.codewithspardha.blog.repositories.RoleRepo;
 import com.codewithspardha.blog.repositories.UserRepo;
 import com.codewithspardha.blog.services.UserService;
 
@@ -22,9 +26,16 @@ public class UserServiceImpl implements UserService {
 	@Autowired
 	private ModelMapper modelMapper;
 	
+	@Autowired
+	private PasswordEncoder passwordEncoder;
+	
+	@Autowired
+	private RoleRepo roleRepo;
+	
 	@Override
 	public UserDto createUser(UserDto userDto) {
 		User user = this.dtoToUser(userDto);
+		user.setPassword(passwordEncoder.encode(user.getPassword()));
 		User savedUser = this.userRepo.save(user);
 		return this.userToDto(savedUser);
 	}
@@ -79,6 +90,19 @@ public class UserServiceImpl implements UserService {
 //		userDto.setAbout(user.getAbout());
 //		userDto.setPassword(user.getPassword());
 		return userDto;
+	}
+
+	@Override
+	public UserDto registerNewUser(UserDto userDto) {
+		User user = this.modelMapper.map(userDto, User.class);
+		//encoded the password
+		user.setPassword(this.passwordEncoder.encode(user.getPassword()));
+		
+		//roles
+		Role role = this.roleRepo.findById(AppConstants.NORMAL_USER).get();
+		user.getRoles().add(role);
+		User newUser = this.userRepo.save(user);
+		return this.modelMapper.map(newUser, UserDto.class);
 	}
 
 }

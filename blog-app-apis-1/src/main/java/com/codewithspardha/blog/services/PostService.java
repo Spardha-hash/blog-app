@@ -2,8 +2,8 @@ package com.codewithspardha.blog.services;
 
 import java.util.List;
 
-import com.codewithspardha.blog.entities.Post;
 import com.codewithspardha.blog.payloads.PostDto;
+import com.codewithspardha.blog.payloads.PostResponse;
 
 public interface PostService {
 	
@@ -17,7 +17,7 @@ public interface PostService {
 	void deletePost(Integer postId);
 	
 	//get all posts
-	List<PostDto> getAllPost();
+	PostResponse getAllPost(Integer pageNumber, Integer pageSize, String sortBy, String sortDir);
 	
 	//get single post
 	PostDto getPostById(Integer postId);
@@ -29,5 +29,5 @@ public interface PostService {
 	List<PostDto> getPostsByUser(Integer userId);
 	
 	//search posts
-	List<Post> searchPosts(String keyword);
+	List<PostDto> searchPosts(String keyword);
 }
